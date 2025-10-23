@@ -1,70 +1,72 @@
-class Musico
-  attr_accessor :nome, :instrumento
 
-  def initialize(nome, instrumento)
-    @nome = nome
-    @instrumento = instrumento
+class Drink
+  attr_reader :nome
+
+  def initialize(nome, preco_base)
+    @_nome = nome
+    self.preco_base = preco_base  
   end
 
-  def tocar_partitura(peca)
-    raise NotImplementedError, "O método tocar_partitura deve ser implementado nas subclasses!"
-  end
-end
-
-class Pianista < Musico
-  def tocar_partitura(peca)
-    puts "#{@nome}, o pianista, toca a peça '#{peca}' com o som suave do #{@instrumento}."
-  end
-end
-
-class Violinista < Musico
-  def tocar_partitura(peca)
-    puts "#{@nome}, o violinista, interpreta '#{peca}' com emoção em seu #{@instrumento}."
-  end
-end
-
-class Maestro
-  attr_accessor :musicos
-
-  def initialize(musicos)
-    @musicos = musicos
+  def preco_base
+    @_preco_base
   end
 
-  def iniciar_ensaio(peca)
-    puts "\n O maestro inicia o ensaio da peça '#{peca}'!\n\n"
-    @musicos.each do |musico|
-      musico.tocar_partitura(peca)
+  def preco_base=(valor)
+    if valor.to_f > 0
+      @_preco_base = valor.to_f
+    else
+      raise ArgumentError, "O preço deve ser positivo!"
     end
   end
 
-  def mudar_foco(estado)
-    puts "\n Mudando o foco dos músicos...\n\n"
-    mensagens = @musicos.map do |musico|
-      "#{musico.nome} agora está #{estado}!"
-    end
+  def preco_final
+    @_preco_base
+  end
 
-    mensagens.each { |msg| puts msg }
-    mensagens
+  def to_s
+    "Drink: #{@_nome} | Preço Base: R$#{'%.2f' % @_preco_base}"
   end
 end
 
+class DrinkLenda < Drink
+  attr_reader :anos_desde_criacao
 
-musicos = [
-  Pianista.new("Kousei", "piano"),
-  Violinista.new("Kaori", "violino")
-]
+  def initialize(nome, preco_base, anos_desde_criacao)
+    super(nome, preco_base)
+    @anos_desde_criacao = anos_desde_criacao.to_i
+  end
 
-maestro = Maestro.new(musicos)
+  def preco_final
+    preco_base + (5 * @anos_desde_criacao)
+  end
 
+  def to_s
+    "Drink Lenda: #{@_nome} | Anos: #{@anos_desde_criacao} | Preço Final: R$#{'%.2f' % preco_final}"
+  end
+end
 
-print "Digite o nome da peça a ser tocada: "
-peca = gets.chomp
+class DrinkComum < Drink
+  def to_s
+    "Drink Comum: #{@_nome} | Preço Final: R$#{'%.2f' % preco_final}"
+  end
+end
 
+puts "🍸 Bem-vindo ao Bar AfterLife! 🍸"
+print "Digite o nome do drink: "
+nome = gets.chomp
 
-maestro.iniciar_ensaio(peca)
+print "Digite o preço base do drink: R$"
+preco = gets.chomp.to_f
 
+print "Digite a idade do drink em anos (0 se for comum): "
+anos = gets.chomp.to_i
 
-print "\nDefina o novo estado dos músicos (ex: Concentrado, Relaxado, Inspirado): "
-estado = gets.chomp
+if anos > 0
+  drink = DrinkLenda.new(nome, preco, anos)
+else
+  drink = DrinkComum.new(nome, preco)
+end
 
-maestro.mudar_foco(estado)
+puts "\n Detalhes do pedido:"
+puts drink.to_s
+
